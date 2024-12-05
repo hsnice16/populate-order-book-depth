@@ -1,0 +1,21 @@
+export {
+  SPREAD_PERCENTAGE,
+  TOTAL_LIQUIDITY,
+  LEVEL_LIQUIDITY,
+  LEVERAGE,
+  NUM_LEVELS,
+};
+
+// 0.25% as a fraction
+var SPREAD_PERCENTAGE = 0.25 / 100;
+
+// $200k liquidity
+var TOTAL_LIQUIDITY = 200000;
+
+// $20k per level
+var LEVEL_LIQUIDITY = 20000;
+
+var LEVERAGE = 2;
+
+// Number of levels
+var NUM_LEVELS = TOTAL_LIQUIDITY / LEVEL_LIQUIDITY;
