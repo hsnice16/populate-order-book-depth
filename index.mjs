@@ -1,5 +1,12 @@
 import "dotenv/config";
-import { calculatePrices, createOrder, placeOrder } from "./utils.mjs";
+
+import {
+  calculatePrices,
+  createOrder,
+  placeOrder,
+  createHeader,
+} from "./utils.mjs";
+
 import {
   SPREAD_PERCENTAGE,
   NUM_LEVELS,
@@ -25,33 +32,41 @@ async function populateEthOrderBook() {
   console.log("eth -- buy orders");
 
   // Place orders for buy (Long)
-  for (const price in bidPrices) {
+  for (const price of bidPrices) {
     const order = createOrder(
       "L",
       LEVERAGE,
       price,
       LEVEL_LIQUIDITY,
       symbol,
-      "M"
+      "L",
+      2
     );
 
-    await placeOrder({}, order);
+    const header = await createHeader(order);
+    const orderNo = await placeOrder(header, order);
+
+    console.log("orderNo -- ", orderNo);
   }
 
   console.log("eth -- sell orders");
 
   // Place orders for sell (Short)
-  for (const price in askPrices) {
+  for (const price of askPrices) {
     const order = createOrder(
       "S",
       LEVERAGE,
       price,
       LEVEL_LIQUIDITY,
       symbol,
-      "M"
+      "L",
+      2
     );
 
-    await placeOrder({}, order);
+    const header = await createHeader(order);
+    const orderNo = await placeOrder(header, order);
+
+    console.log("orderNo -- ", orderNo);
   }
 }
 
@@ -70,32 +85,40 @@ async function populateBtcOrderBook() {
   console.log("btc -- buy orders");
 
   // Place orders for buy (Long)
-  for (const price in bidPrices) {
+  for (const price of bidPrices) {
     const order = createOrder(
       "L",
       LEVERAGE,
       price,
       LEVEL_LIQUIDITY,
       symbol,
-      "M"
+      "L",
+      1
     );
 
-    await placeOrder({}, order);
+    const header = await createHeader(order);
+    const orderNo = await placeOrder(header, order);
+
+    console.log("orderNo -- ", orderNo);
   }
 
   console.log("btc -- sell orders");
 
   // Place orders for sell (Short)
-  for (const price in askPrices) {
+  for (const price of askPrices) {
     const order = createOrder(
       "S",
       LEVERAGE,
       price,
       LEVEL_LIQUIDITY,
       symbol,
-      "M"
+      "L",
+      1
     );
 
-    await placeOrder({}, order);
+    const header = await createHeader(order);
+    const orderNo = await placeOrder(header, order);
+
+    console.log("orderNo -- ", orderNo);
   }
 }

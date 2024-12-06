@@ -1,6 +1,7 @@
 import fetch from "node-fetch";
+import { ethers } from "ethers";
 
-export { calculatePrices, placeOrder, createOrder };
+export { calculatePrices, placeOrder, createOrder, createHeader };
 
 async function calculatePrices(symbol, spreadPercentage, levels) {
   const referencePrice = await getOracleReferencePrice(symbol);
@@ -52,7 +53,12 @@ async function placeOrder(headers, data) {
   });
 
   const jsonData = await response.json();
-  console.log("data", jsonData);
+
+  if (jsonData.success) {
+    return jsonData.data;
+  } else {
+    return jsonData.msg;
+  }
 }
 
 /**
@@ -63,11 +69,20 @@ async function placeOrder(headers, data) {
  * @param {number} amount 20000
  * @param {string} symbol "ETH" | "BTC"
  * @param {string} type "M" | "L"
+ * @param {number} priceDecimal 1
  * @returns
  */
-async function createOrder(direction, leverage, price, amount, symbol, type) {
-  price = parseFloat(price.toFixed(2));
-  const quantity = parseFloat((amount / price).toFixed(2));
+function createOrder(
+  direction,
+  leverage,
+  price,
+  amount,
+  symbol,
+  type,
+  priceDecimal
+) {
+  price = parseFloat(price.toFixed(priceDecimal));
+  const quantity = parseFloat((amount / price).toFixed(priceDecimal));
 
   return {
     direction,
@@ -78,6 +93,29 @@ async function createOrder(direction, leverage, price, amount, symbol, type) {
     slippage: 2,
     price,
     quantity,
+  };
+}
+
+/**
+ *
+ * @param {Object} order Order Data
+ * @returns
+ */
+async function createHeader(order) {
+  const payload = JSON.stringify(order);
+
+  // Create a wallet instance from the private key
+  const wallet = new ethers.Wallet(process.env.EXCHANGE_BASED_PRIVATE_KEY);
+
+  // Get timestamp as nonce
+  const timestamp = Date.now();
+  const signature = await wallet.signMessage(`${payload}${timestamp}`);
+
+  return {
+    "X-Platform": "turbox",
+    "X-Chain-EVM-Id": 421614,
+    "X-Nonce": timestamp,
+    "X-Signature": signature,
   };
 }
 
